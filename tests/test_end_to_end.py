@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import sqlite3
+import stat
 import subprocess
 import tempfile
 import unittest
@@ -376,6 +378,21 @@ class TestEndToEnd(unittest.TestCase):
             self.assertEqual(rep.checked_mtimes, 2)
             self.assertEqual(rep.checked_media_files, 1)  # recovered PNG from .jsonl.zst!
 
+            # Verify POSIX file permission bits match Antigravity native conventions (0o644 vs 0o600)
+            if os.name == "posix":
+                self.assertEqual(stat.S_IMODE((paths.projects_dir / "agy-existing-shared.json").stat().st_mode), 0o644)
+                self.assertEqual(stat.S_IMODE((paths.projects_dir / f"{ids['pid_new']}.json").stat().st_mode), 0o644)
+                self.assertEqual(stat.S_IMODE(paths.app_storage_json.stat().st_mode), 0o644)
+                self.assertEqual(stat.S_IMODE(paths.summaries_db.stat().st_mode), 0o644)
+                for cid in (ids["root"], ids["standalone"]):
+                    self.assertEqual(stat.S_IMODE((paths.annotations_dir / f"{cid}.pbtxt").stat().st_mode), 0o644)
+                    self.assertEqual(stat.S_IMODE((paths.conversations_dir / f"{cid}.db").stat().st_mode), 0o600)
+                    brain_files = [p for p in (paths.brain_dir / cid).rglob("*") if p.is_file()]
+                    self.assertTrue(brain_files, f"Expected files under brain/{cid}/")
+                    for bf in brain_files:
+                        self.assertEqual(stat.S_IMODE(bf.stat().st_mode), 0o644, f"Unexpected mode on {bf}")
+                self.assertEqual(stat.S_IMODE(paths.hub_summaries_pb.stat().st_mode), 0o600)
+
             # Verify existing overlapping project was merged & preserved settings + native conversation untouched
             merged_proj = json.loads((paths.projects_dir / "agy-existing-shared.json").read_text("utf-8"))
             self.assertEqual(merged_proj["name"], "Existing Shared Name")
@@ -500,6 +517,10 @@ class TestEndToEnd(unittest.TestCase):
             hub = decode_agyhub_summaries(paths.hub_summaries_pb.read_bytes())
             self.assertNotIn(ids["conflict"], hub)
             self.assertIn(ids["root"], hub)
+            if os.name == "posix":
+                self.assertEqual(stat.S_IMODE(paths.app_storage_json.stat().st_mode), 0o644)
+                self.assertEqual(stat.S_IMODE(paths.hub_summaries_pb.stat().st_mode), 0o600)
+                self.assertEqual(stat.S_IMODE((paths.conversations_dir / f"{ids['sub1']}.db").stat().st_mode), 0o600)
 
     def test_max_total_budget_selects_newest_and_blocks_explicit_overflow(self) -> None:
         with tempfile.TemporaryDirectory() as td:

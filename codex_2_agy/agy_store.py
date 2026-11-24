@@ -505,6 +505,8 @@ class AgyWriter:
             conn.execute("PRAGMA user_version = 3;")
             conn.execute("INSERT OR IGNORE INTO search_schema_version(version) VALUES (3);")
             conn.commit()
+            if os.name == "posix":
+                os.chmod(self.paths.summaries_db, 0o644)
         self._summaries_conn = conn
 
         # Load existing agyhub_summaries_proto.pb so we never lose existing entries

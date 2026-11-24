@@ -117,7 +117,7 @@ def assert_safe_to_write(gemini_dir: Path, *, allow_live_agy: bool = False) -> N
         )
 
 
-def atomic_write_bytes(path: Path, data: bytes, mode: int | None = None) -> None:
+def atomic_write_bytes(path: Path, data: bytes, mode: int | None = 0o644) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
     tmp_path = Path(tmp_name)
@@ -137,11 +137,11 @@ def atomic_write_bytes(path: Path, data: bytes, mode: int | None = None) -> None
         raise
 
 
-def atomic_write_text(path: Path, text: str, mode: int | None = None) -> None:
+def atomic_write_text(path: Path, text: str, mode: int | None = 0o644) -> None:
     atomic_write_bytes(path, text.encode("utf-8"), mode=mode)
 
 
-def atomic_write_json(path: Path, obj: Any, mode: int | None = None) -> None:
+def atomic_write_json(path: Path, obj: Any, mode: int | None = 0o644) -> None:
     text = json.dumps(obj, ensure_ascii=False, indent=2) + "\n"
     atomic_write_text(path, text, mode=mode)
 
