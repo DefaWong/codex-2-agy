@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""Direct executable launcher for codex-2-agy (no pip install required)."""
+
+from codex_2_agy.cli import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())

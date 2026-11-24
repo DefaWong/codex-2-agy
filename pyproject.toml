@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codex-2-agy"
+version = "0.1.0"
+description = "Lossless, non-destructive migration tool from Codex (App/CLI) to Antigravity (agy)"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = []
+keywords = ["codex", "antigravity", "agy", "migration", "sqlite", "protobuf"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.optional-dependencies]
+zstd = ["zstandard>=0.21"]
+
+[project.urls]
+Homepage = "https://github.com/DefaWong/codex-2-agy"
+Repository = "https://github.com/DefaWong/codex-2-agy"
+Issues = "https://github.com/DefaWong/codex-2-agy/issues"
+
+[project.scripts]
+codex-2-agy = "codex_2_agy.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["codex_2_agy*"]
